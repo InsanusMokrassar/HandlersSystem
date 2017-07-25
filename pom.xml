@@ -205,6 +205,11 @@
             <artifactId>IObjectKRealisations</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.insanusmokrassar</groupId>
+            <artifactId>IOC</artifactId>
+            <version>1.0</version>
+        </dependency>
         <!--<dependency>
             <groupId>com.github.insanusmokrassar</groupId>
             <artifactId>AutoORM</artifactId>
