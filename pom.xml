@@ -197,7 +197,7 @@
         </dependency>
         <dependency>
             <groupId>com.github.insanusmokrassar</groupId>
-            <artifactId>iobjectk</artifactId>
+            <artifactId>IObjectK</artifactId>
             <version>1.0</version>
         </dependency>
         <dependency>
