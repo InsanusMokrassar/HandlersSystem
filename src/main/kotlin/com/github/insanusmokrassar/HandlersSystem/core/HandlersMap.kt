@@ -13,6 +13,9 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.logging.Logger
 
+fun initMaps(ioc: IOC, config: IObject<Any>) {
+    val mapsStrategy = ioc.resolve<>()
+}
 /**
  * @param systemConfigObject Receive as first param object with settings of system: IOC object and other params which can be neede by handlers.
  * @param config object which contains:
@@ -23,18 +26,36 @@ import java.util.logging.Logger
  *              {
  *                  "handler": "Name of handler",// |handler or map field set the name of next "handler". If set handler - work as common, if map - set the context in request of map
  *                  "map": "or name of map",//      |
- *                  "config": {//optionally
+ *                  "config": {//optionally, will added when will executing as context params
  *                      ...
  *                  }
  *              }
  *          ],
- *          "config": {//optionally
+ *          "config": {//optionally, will added when will executing as context params
  *              ...
- *          }
+ *          },
+ *          "threadsGroupName": "common"//optionally, will using to get executor service by executor service strategy with the name
  *     }
  * </pre>
  */
-class HandlersMap(private val systemConfigObject: IObject<Any>, private val config: IInputObject<String, Any>, val executor: ExecutorService = Executors.newSingleThreadExecutor()) {
+class HandlersMap(private val systemConfigObject: IObject<Any>, private val config: IInputObject<String, Any>) {
+
+    val executor: ExecutorService
+
+    init {
+        if (config.has(threadsGroupNameField)) {
+            executor = try {
+                systemConfigObject.get<IOC>(IOCField).resolve<ExecutorService>(
+                        ExecutorService::class.simpleName!!,
+                        threadsGroupNameField
+                )
+            } catch (e: Exception) {
+                Executors.newSingleThreadExecutor()
+            }
+        } else {
+            executor = Executors.newSingleThreadExecutor()
+        }
+    }
 
     private val configObject: IObject<Any> = {
         if (config.keys().contains(configField)) {
@@ -54,6 +75,14 @@ class HandlersMap(private val systemConfigObject: IObject<Any>, private val conf
             handlersParamsObject.put(resultObjectField, SimpleIObject())
             val ioc = systemConfigObject.get<IOC>(IOCField)
             map.forEach {
+                if (it.has(paramsField)) {
+                    handlersParamsObject.put(
+                            contextObjectField,
+                            it.get<IObject<Any>>(paramsField).addAll(
+                                    handlersParamsObject.get(contextObjectField)
+                            )
+                    )
+                }
                 if (it.has(handlerField)) {
                     try {
                         val handler = ioc.resolve<Handler>(it.get<String>(handlerField))

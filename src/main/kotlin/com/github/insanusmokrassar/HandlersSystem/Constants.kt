@@ -27,6 +27,8 @@ val requestObjectField = "requestParams"
 
 val resultObjectField = "resultObject"
 
+val threadsGroupNameField = "threadsGroupName"
+
 //HandlersMap
 val pathField = "path"
 val handlerField = "handler"
