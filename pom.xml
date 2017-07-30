@@ -206,9 +206,9 @@
             <version>1.0</version>
         </dependency>
         <dependency>
-            <groupId>com.github.insanusmokrassar</groupId>
-            <artifactId>IOC</artifactId>
-            <version>1.0</version>
+            <groupId>com.github.insogroup</groupId>
+            <artifactId>utils</artifactId>
+            <version>0.6.7</version>
         </dependency>
         <!--<dependency>
             <groupId>com.github.insanusmokrassar</groupId>

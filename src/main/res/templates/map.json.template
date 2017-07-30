@@ -1,0 +1,15 @@
+{
+    "name": "ExampleHandlersMapName",
+    "path": [
+        {
+            "handler": "Name of handler",
+            "map": "or name of map",
+            "config": {
+            ...
+            }
+        }
+    ],
+    "config": {
+    ...
+    }
+}
