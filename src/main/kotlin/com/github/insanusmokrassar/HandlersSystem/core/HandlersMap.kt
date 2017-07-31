@@ -7,15 +7,38 @@ import com.github.insanusmokrassar.iobjectk.interfaces.addAll
 import com.github.insanusmokrassar.iobjectk.interfaces.has
 import com.github.insanusmokrassar.iobjectk.realisations.SimpleIObject
 import com.github.insanusmokrassar.utils.IOC.IOC
+import com.github.insanusmokrassar.utils.IOC.strategies.CacheIOCStrategy
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.logging.Logger
 
-fun initMaps(ioc: IOC, config: IObject<Any>) {
-    val mapsStrategy = ioc.resolve<>()
+/**
+ * Await that IOC was initialised to create instances of HandlersMap class
+ * @param config object which contains:
+ * <pre>
+ *     "maps": [
+ *          {
+ *              ...// use handlers map template
+ *          }
+ *     ]
+ * </pre>
+ */
+fun initMaps(systemConfigObject: IObject<Any>, config: IObject<Any>) {
+    val ioc = systemConfigObject.get<IOC>(IOCField)
+
+    try {
+        config.get<List<IObject<Any>>>(mapsField).forEach {
+            ioc.resolve(HandlersMap::class.simpleName!!, it.get<String>(nameField), systemConfigObject, it)
+        }
+    } catch (e: Exception) {
+        val strategy = CacheIOCStrategy(HandlersMap::class.qualifiedName!!)
+        ioc.register(HandlersMap::class.simpleName!!, strategy)
+        initMaps(systemConfigObject, config)
+    }
 }
+
 /**
  * @param systemConfigObject Receive as first param object with settings of system: IOC object and other params which can be neede by handlers.
  * @param config object which contains:
@@ -40,7 +63,7 @@ fun initMaps(ioc: IOC, config: IObject<Any>) {
  */
 class HandlersMap(private val systemConfigObject: IObject<Any>, private val config: IInputObject<String, Any>) {
 
-    val executor: ExecutorService
+    private val executor: ExecutorService
 
     init {
         if (config.has(threadsGroupNameField)) {

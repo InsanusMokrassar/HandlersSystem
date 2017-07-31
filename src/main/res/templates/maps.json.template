@@ -1,0 +1,34 @@
+{
+    "maps": [
+        {
+            "name": "ExampleHandlersMap",
+            "path": [
+                {
+                    "handler": "Name of handler",
+                    "map": "or name of map",
+                    "config": {
+                        ...
+                    }
+                }
+            ],
+            "config": {
+                ...
+            }
+        },
+        {
+            "name": "ExampleMap2",
+            "path": [
+                {
+                    "handler": "Name of handler",
+                    "map": "or name of map",
+                    "config": {
+                        ...
+                    }
+                }
+            ],
+            "config": {
+                ...
+            }
+        }
+    ]
+}
