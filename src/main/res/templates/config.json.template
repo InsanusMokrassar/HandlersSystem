@@ -1,0 +1,30 @@
+{
+    "strategies": [
+        {
+            "name": "HandlersMap",
+            "package": "com.github.insanusmokrassar.utils.IOC.strategies.CacheIOCStrategy",
+            "config": "com.github.insanusmokrassar.HandlersSystem.core.HandlersMap"
+        },
+        {
+            "name": "ExecutorService",
+            "package": "com.github.insanusmokrassar.utils.IOC.strategies.FixedExecutorServiceStrategy",
+            "config": {
+                "default": 1,
+                "simpleMap": 2,
+                "hardMap": 4
+            }
+        }
+    ],
+    "maps": [
+        {
+            "name": "FirstMap",
+            "path": [
+                ...
+            ],
+            "config": {
+                ...
+            }
+            "threadsGroupName": "default"
+        }
+    ]
+}
