@@ -15,7 +15,7 @@ import java.util.concurrent.Future
 import java.util.logging.Logger
 
 /**
- * Await that IOC was initialised to create instances of HandlersMap class
+ * Await that IOC was initialised to create instances of HandlersMap class and put into system config.
  * @param config object which contains:
  * <pre>
  *     "maps": [
@@ -25,7 +25,7 @@ import java.util.logging.Logger
  *     ]
  * </pre>
  */
-fun initMaps(systemConfigObject: IObject<Any>, config: IObject<Any>) {
+fun loadMaps(systemConfigObject: IObject<Any>, config: IObject<Any> = systemConfigObject) {
     val ioc = systemConfigObject.get<IOC>(IOCField)
 
     try {
@@ -35,7 +35,7 @@ fun initMaps(systemConfigObject: IObject<Any>, config: IObject<Any>) {
     } catch (e: Exception) {
         val strategy = CacheIOCStrategy(HandlersMap::class.qualifiedName!!)
         ioc.register(HandlersMap::class.simpleName!!, strategy)
-        initMaps(systemConfigObject, config)
+        loadMaps(systemConfigObject, config)
     }
 }
 
