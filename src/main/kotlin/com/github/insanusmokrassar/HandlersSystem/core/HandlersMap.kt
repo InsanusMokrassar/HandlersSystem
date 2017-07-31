@@ -6,7 +6,7 @@ import com.github.insanusmokrassar.iobjectk.interfaces.IObject
 import com.github.insanusmokrassar.iobjectk.interfaces.addAll
 import com.github.insanusmokrassar.iobjectk.interfaces.has
 import com.github.insanusmokrassar.iobjectk.realisations.SimpleIObject
-import com.insogroup.utils.IOC.IOC
+import com.github.insanusmokrassar.utils.IOC.IOC
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors

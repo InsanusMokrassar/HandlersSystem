@@ -2,9 +2,9 @@ package com.github.insanusmokrassar.HandlersSystem.core
 
 import com.github.insanusmokrassar.HandlersSystem.classPathField
 import com.github.insanusmokrassar.HandlersSystem.paramsField
-import com.github.insanusmokrassar.IOC.utils.extract
 import com.github.insanusmokrassar.iobjectk.exceptions.ReadException
 import com.github.insanusmokrassar.iobjectk.interfaces.IObject
+import com.github.insanusmokrassar.utils.ClassExtractor.extract
 import java.util.logging.Logger
 
 interface Handler {
