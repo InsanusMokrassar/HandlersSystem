@@ -160,27 +160,24 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>-->
-                <!--<groupId>org.jetbrains.dokka</groupId>-->
-                <!--<artifactId>dokka-maven-plugin</artifactId>-->
-                <!--<version>${dokka.version}</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>dokka</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<outputFormat>gfm</outputFormat>-->
-                    <!--<reportNotDocumented>true</reportNotDocumented>-->
-                    <!--<skipEmptyPackages>true</skipEmptyPackages>-->
-                    <!--<sourceDirectories>-->
-                        <!--<dir>${project.build.sourceDirectory}</dir>-->
-                    <!--</sourceDirectories>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.jetbrains.dokka</groupId>
+                <artifactId>dokka-maven-plugin</artifactId>
+                <version>${dokka.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>dokka</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceDirectories>
+                        <dir>${project.build.sourceDirectory}</dir>
+                    </sourceDirectories>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -210,20 +207,5 @@
             <artifactId>utils</artifactId>
             <version>0.6.7</version>
         </dependency>
-        <!--<dependency>
-            <groupId>com.github.insanusmokrassar</groupId>
-            <artifactId>AutoORM</artifactId>
-            <version>0.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.insanusmokrassar</groupId>
-            <artifactId>JDBCAutoORMDriver</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.196</version>
-        </dependency>-->
     </dependencies>
 </project>

@@ -111,7 +111,7 @@ class HandlersMap(private val systemConfigObject: IObject<Any>, private val conf
                 }
                 if (it.has(handlerField)) {
                     try {
-                        val handler = ioc.resolve<Handler>(it.get<String>(handlerField))
+                        val handler = ioc.resolve<Handler>(Handler::class.simpleName!!, it.get<String>(handlerField))
                         handler.handle(handlersParamsObject)
                     } catch (e: Exception) {
                         Logger.getGlobal().warning("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}")
