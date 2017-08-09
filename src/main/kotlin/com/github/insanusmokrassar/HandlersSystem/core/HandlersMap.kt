@@ -7,6 +7,7 @@ import com.github.insanusmokrassar.iobjectk.interfaces.addAll
 import com.github.insanusmokrassar.iobjectk.interfaces.has
 import com.github.insanusmokrassar.iobjectk.realisations.SimpleIObject
 import com.github.insanusmokrassar.utils.IOC.IOC
+import com.github.insanusmokrassar.utils.IOC.getOrCreateIOCInstance
 import com.github.insanusmokrassar.utils.IOC.strategies.CacheIOCStrategy
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
@@ -26,15 +27,17 @@ import java.util.logging.Logger
  * </pre>
  */
 fun loadMaps(systemConfigObject: IObject<Any>, config: IObject<Any> = systemConfigObject) {
-    val ioc = systemConfigObject.get<IOC>(IOCField)
+    val ioc = getOrCreateIOCInstance(systemConfigObject.get<String>(IOCNameField))
 
     try {
         config.get<List<IObject<Any>>>(mapsField).forEach {
-            ioc.resolve(HandlersMap::class.simpleName!!, it.get<String>(nameField), systemConfigObject, it)
+            ioc.resolve(CacheIOCStrategy::class.simpleName!!, it.get<String>(nameField), HandlersMap::class.qualifiedName!!, systemConfigObject, it)
         }
     } catch (e: Exception) {
-        val strategy = CacheIOCStrategy(HandlersMap::class.qualifiedName!!)
-        ioc.register(HandlersMap::class.simpleName!!, strategy)
+        val config = SimpleIObject()
+        config.put(IOCNameField, ioc)
+        val strategy = CacheIOCStrategy(config)
+        ioc.register(CacheIOCStrategy::class.simpleName!!, strategy)
         loadMaps(systemConfigObject, config)
     }
 }
@@ -68,7 +71,7 @@ class HandlersMap(private val systemConfigObject: IObject<Any>, private val conf
     init {
         if (config.has(threadsGroupNameField)) {
             executor = try {
-                systemConfigObject.get<IOC>(IOCField).resolve<ExecutorService>(
+                getOrCreateIOCInstance(systemConfigObject.get<String>(IOCNameField)).resolve<ExecutorService>(
                         ExecutorService::class.simpleName!!,
                         threadsGroupNameField
                 )
@@ -96,7 +99,7 @@ class HandlersMap(private val systemConfigObject: IObject<Any>, private val conf
             handlersParamsObject.put(contextObjectField, SimpleIObject(configObject))
             handlersParamsObject.put(requestObjectField, requestParams)
             handlersParamsObject.put(resultObjectField, SimpleIObject())
-            val ioc = systemConfigObject.get<IOC>(IOCField)
+            val ioc = getOrCreateIOCInstance(systemConfigObject.get<String>(IOCNameField))
             map.forEach {
                 if (it.has(paramsField)) {
                     handlersParamsObject.put(

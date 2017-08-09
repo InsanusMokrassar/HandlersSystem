@@ -4,7 +4,7 @@ val configPathField = "CONFIG_PATH"
 val loggerConfigPathField = "LOGGER_CONFIG_PATH"
 val configField = "CONFIG"
 
-val IOCField = "IOC"
+val IOCNameField = "IOCName"
 
 val databaseConfigField = "databaseConfig"
 val databasePoolField = "databasePool"
