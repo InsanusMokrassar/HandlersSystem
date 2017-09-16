@@ -1,11 +1,9 @@
 package com.github.insanusmokrassar.HandlersSystem.core
 
 import com.github.insanusmokrassar.HandlersSystem.classPathField
-import com.github.insanusmokrassar.HandlersSystem.paramsField
-import com.github.insanusmokrassar.iobjectk.exceptions.ReadException
-import com.github.insanusmokrassar.iobjectk.interfaces.IObject
-import com.github.insanusmokrassar.utils.ClassExtractor.extract
-import java.util.logging.Logger
+import com.github.insanusmokrassar.IOC.core.getConfig
+import com.github.insanusmokrassar.IOC.utils.extract
+import com.github.insanusmokrassar.IObjectK.interfaces.IObject
 
 interface Handler {
     fun handle(params: IObject<Any>)
@@ -22,16 +20,6 @@ interface Handler {
  */
 fun loadHandler(config: IObject<Any>): Handler {
     val classPath = config.get<String>(classPathField)
-    if (config.keys().contains(paramsField)) {
-        try {
-            val params = config.get<List<Any>>(paramsField)
-            return extract(classPath, *params.toTypedArray())
-        } catch (e: ReadException) {
-            Logger.getGlobal().info("Params is not list, try as common params")
-            val params = config.get<Any>(paramsField)
-            return extract(classPath, params)
-        }
-    } else {
-        return extract(classPath)
-    }
+    val args = getConfig(config)
+    return extract(classPath, *args)
 }
