@@ -23,7 +23,7 @@ import java.util.logging.Logger
  *              {
  *                  "handler": "Name of handler",// |handler or map field set the name of next "handler". If set handler - work as common, if map - set the context in request of map
  *                  "map": "or name of map",//      |
- *                  "config": {//optionally, will added when will executing as context params
+ *                  "params": {//optionally, will added when will executing as context params
  *                      ...
  *                  }
  *              }
@@ -91,7 +91,7 @@ class HandlersMap(private val config: IInputObject<String, Any>, private val sys
                     }
                 } else {
                     try {
-                        val mapToExecute = ioc.resolve<HandlersMap>(it.get<String>(mapField))
+                        val mapToExecute = ioc.resolve<HandlersMap>(HandlersMap::class.simpleName!!, it.get(mapField))
                         handlersParamsObject.get<IObject<Any>>(contextObjectField)
                                 .addAll(
                                         mapToExecute
