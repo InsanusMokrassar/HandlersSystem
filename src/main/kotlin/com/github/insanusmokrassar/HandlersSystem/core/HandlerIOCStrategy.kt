@@ -4,16 +4,18 @@ import com.github.insanusmokrassar.HandlersSystem.nameField
 import com.github.insanusmokrassar.IOC.core.IOCStrategy
 import com.github.insanusmokrassar.IObjectK.interfaces.IObject
 
-class HandlerIOCStrategy(config: List<IObject<Any>>): IOCStrategy {
+class HandlerIOCStrategy(vararg handlersConfigs: Any): IOCStrategy {
     private val handlers: Map<String, Handler>
 
     init {
         val futureHandlers = HashMap<String, Handler>()
-        config.forEach {
-            futureHandlers.put(
-                    it.get(nameField),
-                    loadHandler(it)
-            )
+        handlersConfigs.forEach {
+            (it as? IObject<Any>)?.let {
+                futureHandlers.put(
+                        it.get(nameField),
+                        loadHandler(it)
+                )
+            }
         }
         handlers = futureHandlers
     }
