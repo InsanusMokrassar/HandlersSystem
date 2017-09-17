@@ -72,10 +72,10 @@ class HandlersMap(private val config: IInputObject<String, Any>, private val sys
             handlersParamsObject.put(resultObjectField, SimpleIObject())
             val ioc = getOrCreateIOC(config.get(IOCNameField))
             map.forEach {
-                if (it.has(paramsField)) {
+                if (it.has(executeConfigField)) {
                     handlersParamsObject.put(
                             contextObjectField,
-                            it.get<IObject<Any>>(paramsField).addAll(
+                            it.get<IObject<Any>>(executeConfigField).addAll(
                                     handlersParamsObject.get(contextObjectField)
                             )
                     )

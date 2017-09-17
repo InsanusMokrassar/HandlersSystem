@@ -2,10 +2,8 @@ package com.github.insanusmokrassar.HandlersSystem
 
 val nameField = "name"
 
-val classPathField = "classPath"
-val paramsField = "params"
-
 val systemConfigObjectField = "systemConfig"
+val systemConfigStrategyField = "systemConfigStrategy"
 val contextObjectField = "context"
 val requestObjectField = "requestParams"
 

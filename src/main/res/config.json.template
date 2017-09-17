@@ -1,5 +1,36 @@
 {
     "strategies" : [
-
+        {
+            "name": "Handler",
+            "package": "com.github.insanusmokrassar.HandlersSystem.core.HandlerIOCStrategy",
+            "config": [
+                {
+                    "name": "Example",
+                    "package": "only.example.package.Example",
+                    "config": "some custom config"
+                }
+            ]
+        },
+        {
+            "name": "HandlersMap",
+            "package": "com.github.insanusmokrassar.HandlersSystem.core.HandlersMapIOCStrategy",
+            "config": {
+                "maps": [
+                    {
+                        "name": "ExampleHandlersMapName",
+                        "path": [
+                            {
+                                "handler": "Name of handler",
+                                "map": "or name of map",
+                                "config": "local handler config for apply in execution"
+                            }
+                        ],
+                        "executeConfig": "config for apply in all executions"
+                    }
+                ],
+                "systemConfigStrategy": "strategy which contains system config by additional key 'systemConfig'",
+                "IOCName": "name of ioc for resolve strategy"
+            }
+        }
     ]
 }

@@ -6,12 +6,12 @@
                 {
                     "handler": "Name of handler",
                     "map": "or name of map",
-                    "config": {
+                    "executeConfig": {
                         ...
                     }
                 }
             ],
-            "config": {
+            "executeConfig": {
                 ...
             }
         },
@@ -21,12 +21,12 @@
                 {
                     "handler": "Name of handler",
                     "map": "or name of map",
-                    "config": {
+                    "executeConfig": {
                         ...
                     }
                 }
             ],
-            "config": {
+            "executeConfig": {
                 ...
             }
         }

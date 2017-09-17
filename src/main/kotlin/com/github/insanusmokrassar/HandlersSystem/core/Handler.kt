@@ -1,6 +1,5 @@
 package com.github.insanusmokrassar.HandlersSystem.core
 
-import com.github.insanusmokrassar.HandlersSystem.classPathField
 import com.github.insanusmokrassar.IOC.core.getConfig
 import com.github.insanusmokrassar.IOC.core.packageKey
 import com.github.insanusmokrassar.IOC.utils.extract
