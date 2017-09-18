@@ -42,6 +42,9 @@ class HandlersMapIOCStrategy(config: IObject<Any>): IOCStrategy {
         }
         val handlersMapsList = HashMap<String?, HandlersMap>()
         handlersMapsConfigs.forEach {
+            if (!it.keys().contains(IOCNameField)) {
+                it.put(IOCNameField, config.get(IOCNameField))
+            }
             try {
                 handlersMapsList.put(
                     it.get(nameField),
