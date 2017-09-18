@@ -67,10 +67,10 @@ class HandlersMap(
         executor.submit({
             val map = config.get<List<IObject<Any>>>(pathField)
             val handlersParamsObject = SimpleIObject()
+            val result = SimpleIObject()
             handlersParamsObject.put(systemConfigObjectField, systemConfigObject)
             handlersParamsObject.put(contextObjectField, SimpleIObject(executeConfig))
             handlersParamsObject.put(requestObjectField, requestParams)
-            handlersParamsObject.put(resultObjectField, SimpleIObject())
             val ioc = getOrCreateIOC(config.get(IOCNameField))
             val syncObject = Object()
             map.forEach {
@@ -92,11 +92,7 @@ class HandlersMap(
                             handlersParamsObject,
                             {
                                 synchronized(syncObject, {
-                                    handlersParamsObject.get<IObject<Any>>(
-                                            resultObjectField
-                                    ).addAll(
-                                            it
-                                    )
+                                    result.addAll(it)
                                     syncObject.notify()
                                 })
                             }
@@ -110,7 +106,7 @@ class HandlersMap(
                     throw IllegalStateException("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}", e)
                 }
             }
-            requestResult(handlersParamsObject.get(resultObjectField))
+            requestResult(result)
         })
     }
 }
