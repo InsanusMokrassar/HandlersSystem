@@ -3,12 +3,13 @@ package com.github.insanusmokrassar.HandlersSystem.core
 import com.github.insanusmokrassar.HandlersSystem.*
 import com.github.insanusmokrassar.IOC.core.IOCStrategy
 import com.github.insanusmokrassar.IOC.core.getOrCreateIOC
+import com.github.insanusmokrassar.IObjectK.exceptions.ReadException
 import com.github.insanusmokrassar.IObjectK.interfaces.IObject
 import com.github.insanusmokrassar.IObjectK.realisations.SimpleIObject
 
 class HandlersMapIOCStrategy(config: IObject<Any>): IOCStrategy {
 
-    private val maps: Map<String, HandlersMap>
+    private val maps: Map<String?, HandlersMap>
 
     /**
      * Await:
@@ -39,20 +40,34 @@ class HandlersMapIOCStrategy(config: IObject<Any>): IOCStrategy {
                 SimpleIObject()
             }
         }
-        val handlersMapsList = HashMap<String, HandlersMap>()
+        val handlersMapsList = HashMap<String?, HandlersMap>()
         handlersMapsConfigs.forEach {
-            handlersMapsList.put(
+            try {
+                handlersMapsList.put(
                     it.get(nameField),
                     HandlersMap(
                             it,
                             systemConfig
                     )
-            )
+                )
+            } catch (e: ReadException) {
+                handlersMapsList.put(
+                        null,
+                        HandlersMap(
+                                it,
+                                systemConfig
+                        )
+                )
+            }
         }
         maps = handlersMapsList
     }
 
-    override fun <T : Any> getInstance(vararg args: Any): T {
-        return maps[args[0]] as T
+    override fun <T : Any> getInstance(vararg args: Any?): T {
+        return if (args.isEmpty() || args[0] == null) {
+            maps[null] as T
+        } else {
+            maps[args[0]] as T
+        }
     }
 }

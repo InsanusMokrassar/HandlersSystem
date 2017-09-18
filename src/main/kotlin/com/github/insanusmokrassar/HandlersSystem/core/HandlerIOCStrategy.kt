@@ -20,7 +20,7 @@ class HandlerIOCStrategy(vararg handlersConfigs: Any): IOCStrategy {
         handlers = futureHandlers
     }
 
-    override fun <T : Any> getInstance(vararg args: Any): T {
+    override fun <T : Any> getInstance(vararg args: Any?): T {
         return handlers[args[0]] as T
     }
 }
