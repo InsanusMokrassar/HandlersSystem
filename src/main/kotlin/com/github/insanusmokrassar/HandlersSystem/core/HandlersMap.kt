@@ -90,6 +90,7 @@ class HandlersMap(
             val ioc = getOrCreateIOC(config.get(IOCNameField))
             val syncObject = Object()
             map.forEach {
+                var next = false
                 if (it.has(executeConfigField)) {
                     requestParams.getContextIObject().addAll(
                             it.get<IObject<Any>>(
@@ -108,12 +109,15 @@ class HandlersMap(
                             {
                                 synchronized(syncObject, {
                                     result.addAll(it)
+                                    next = true
                                     syncObject.notify()
                                 })
                             }
                     )
                     synchronized(syncObject, {
-                        syncObject.wait()
+                        while (!next) {
+                            syncObject.wait()
+                        }
                     })
                 } catch (e: Exception) {
                     Logger.getGlobal().warning("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}")
