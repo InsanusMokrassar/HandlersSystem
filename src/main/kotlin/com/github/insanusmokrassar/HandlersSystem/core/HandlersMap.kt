@@ -72,7 +72,7 @@ class HandlersMap(
             handlersParamsObject.put(
                     contextObjectField,
                     if (requestParams.has(contextObjectField)) {
-                        val contextParams = requestParams.get<IObject<Any>>(contextObjectField)
+                        val contextParams = requestParams.getContextIObject()
                         contextParams.addAll(executeConfig)
                         contextParams
                     } else {
@@ -82,7 +82,7 @@ class HandlersMap(
             handlersParamsObject.put(
                     requestObjectField,
                     if (requestParams.has(requestObjectField)) {
-                        requestParams.get(requestObjectField)
+                        requestParams.getRequestIObject()
                     } else {
                         requestParams
                     }
@@ -91,9 +91,7 @@ class HandlersMap(
             val syncObject = Object()
             map.forEach {
                 if (it.has(executeConfigField)) {
-                    requestParams.get<IObject<Any>>(
-                            contextObjectField
-                    ).addAll(
+                    requestParams.getContextIObject().addAll(
                             it.get<IObject<Any>>(
                                     executeConfigField
                             )
@@ -126,4 +124,16 @@ class HandlersMap(
             requestResult(result)
         })
     }
+}
+
+fun IInputObject<String, Any>.getSystemIObject(): IObject<Any> {
+    return get(systemConfigObjectField)
+}
+
+fun IInputObject<String, Any>.getContextIObject(): IObject<Any> {
+    return get(contextObjectField)
+}
+
+fun IInputObject<String, Any>.getRequestIObject(): IObject<Any> {
+    return get(requestObjectField)
 }
