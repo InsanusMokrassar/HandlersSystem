@@ -69,8 +69,22 @@ class HandlersMap(
             val handlersParamsObject = SimpleIObject()
             val result = SimpleIObject()
             handlersParamsObject.put(systemConfigObjectField, systemConfigObject)
-            handlersParamsObject.put(contextObjectField, SimpleIObject(executeConfig))
-            handlersParamsObject.put(requestObjectField, requestParams)
+            handlersParamsObject.put(
+                    contextObjectField,
+                    if (requestParams.has(contextObjectField)) {
+                        requestParams.get<IObject<Any>>(contextObjectField).addAll(executeConfig)
+                    } else {
+                        SimpleIObject(executeConfig)
+                    }
+            )
+            handlersParamsObject.put(
+                    requestObjectField,
+                    if (requestParams.has(requestObjectField)) {
+                        requestParams.get(requestObjectField)
+                    } else {
+                        requestParams
+                    }
+            )
             val ioc = getOrCreateIOC(config.get(IOCNameField))
             val syncObject = Object()
             map.forEach {
