@@ -91,10 +91,11 @@ class HandlersMap(
             val syncObject = Object()
             map.forEach {
                 if (it.has(executeConfigField)) {
-                    handlersParamsObject.put(
-                            contextObjectField,
-                            it.get<IObject<Any>>(executeConfigField).addAll(
-                                    handlersParamsObject.get(contextObjectField)
+                    requestParams.get<IObject<Any>>(
+                            contextObjectField
+                    ).addAll(
+                            it.get<IObject<Any>>(
+                                    executeConfigField
                             )
                     )
                 }
