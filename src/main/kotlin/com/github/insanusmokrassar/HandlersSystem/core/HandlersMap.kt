@@ -122,6 +122,7 @@ class HandlersMap(
                 } catch (e: Exception) {
                     Logger.getGlobal().warning("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}")
                     e.printStackTrace()
+                    requestResult(result)
                     throw IllegalStateException("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}", e)
                 }
             }
