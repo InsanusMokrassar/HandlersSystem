@@ -1,6 +1,7 @@
 package com.github.insanusmokrassar.HandlersSystem.core
 
 import com.github.insanusmokrassar.HandlersSystem.*
+import com.github.insanusmokrassar.IOC.core.ResolveStrategyException
 import com.github.insanusmokrassar.IOC.core.getOrCreateIOC
 import com.github.insanusmokrassar.IObjectK.interfaces.IInputObject
 import com.github.insanusmokrassar.IObjectK.interfaces.IObject
@@ -10,7 +11,6 @@ import com.github.insanusmokrassar.IObjectK.realisations.SimpleIObject
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import java.util.concurrent.Future
 import java.util.logging.Logger
 
 /**
@@ -21,9 +21,8 @@ import java.util.logging.Logger
  *          "name": "ExampleHandlersMapName",//required
  *          "path": [// required, contain path of map
  *              {
- *                  "handler": "Name of handler",// |handler or map field set the name of next "handler". If set handler - work as common, if map - set the context in request of map
- *                  "map": "or name of map",//      |
- *                  "params": {//optionally, will added when will executing as context params
+ *                  "name": "Name of handler",// name of map or handler
+ *                  "executeConfig": {//optionally, will added when will executing as context params
  *                      ...
  *                  }
  *              }
@@ -36,8 +35,10 @@ import java.util.logging.Logger
  *     }
  * </pre>
  */
-class HandlersMap(private val config: IInputObject<String, Any>, private val systemConfigObject: IObject<Any> = SimpleIObject()) {
-
+class HandlersMap(
+        private val config: IInputObject<String, Any>,
+        private val systemConfigObject: IObject<Any> = SimpleIObject()
+) : Handler {
     private val executor: ExecutorService =
             if (config.has(threadsGroupNameField)) {
                 try {
@@ -62,8 +63,8 @@ class HandlersMap(private val config: IInputObject<String, Any>, private val sys
         }
     }()
 
-    fun execute(requestParams: IObject<Any>): Future<IObject<Any>> {
-        return executor.submit(Callable<IObject<Any>>{
+    override fun handle(requestParams: IObject<Any>, requestResult: (IObject<Any>) -> Unit) {
+        executor.submit({
             val map = config.get<List<IObject<Any>>>(pathField)
             val handlersParamsObject = SimpleIObject()
             handlersParamsObject.put(systemConfigObjectField, systemConfigObject)
@@ -71,6 +72,7 @@ class HandlersMap(private val config: IInputObject<String, Any>, private val sys
             handlersParamsObject.put(requestObjectField, requestParams)
             handlersParamsObject.put(resultObjectField, SimpleIObject())
             val ioc = getOrCreateIOC(config.get(IOCNameField))
+            val syncObject = Object()
             map.forEach {
                 if (it.has(executeConfigField)) {
                     handlersParamsObject.put(
@@ -80,35 +82,35 @@ class HandlersMap(private val config: IInputObject<String, Any>, private val sys
                             )
                     )
                 }
-                if (it.has(handlerField)) {
-                    try {
-                        val handler = ioc.resolve<Handler>(Handler::class.simpleName!!, it.get<String>(handlerField))
-                        handler.handle(handlersParamsObject)
-                    } catch (e: Exception) {
-                        Logger.getGlobal().warning("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}")
-                        e.printStackTrace()
-                        throw IllegalStateException("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}", e)
+                try {
+                    val handler = try {
+                        ioc.resolve<Handler>(Handler::class.simpleName!!, it.get<String>(nameField))
+                    } catch (e: ResolveStrategyException) {
+                        ioc.resolve<Handler>(HandlersMap::class.simpleName!!, it.get<String>(nameField))
                     }
-                } else {
-                    try {
-                        val mapToExecute = ioc.resolve<HandlersMap>(HandlersMap::class.simpleName!!, it.get(mapField))
-                        handlersParamsObject.get<IObject<Any>>(contextObjectField)
-                                .addAll(
-                                        mapToExecute
-                                                .execute(
-                                                        handlersParamsObject.get(
-                                                                contextObjectField
-                                                        )
-                                                ).get()
-                                )
-                    } catch (e: Exception) {
-                        Logger.getGlobal().warning("Can't execute map ${config.get<String>(nameField)}, submap ${map.indexOf(it)}. ${e.message}")
-                        e.printStackTrace()
-                        throw IllegalStateException("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}", e)
-                    }
+                    handler.handle(
+                            handlersParamsObject,
+                            {
+                                synchronized(syncObject, {
+                                    handlersParamsObject.get<IObject<Any>>(
+                                            resultObjectField
+                                    ).addAll(
+                                            it
+                                    )
+                                    syncObject.notify()
+                                })
+                            }
+                    )
+                    synchronized(syncObject, {
+                        syncObject.wait()
+                    })
+                } catch (e: Exception) {
+                    Logger.getGlobal().warning("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}")
+                    e.printStackTrace()
+                    throw IllegalStateException("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}", e)
                 }
             }
-            handlersParamsObject.get(resultObjectField)
+            requestResult(handlersParamsObject.get(resultObjectField))
         })
     }
 }

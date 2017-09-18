@@ -6,7 +6,7 @@ import com.github.insanusmokrassar.IOC.utils.extract
 import com.github.insanusmokrassar.IObjectK.interfaces.IObject
 
 interface Handler {
-    fun handle(params: IObject<Any>)
+    fun handle(requestParams: IObject<Any>, requestResult: (IObject<Any>) -> Unit = {})
 }
 
 /**

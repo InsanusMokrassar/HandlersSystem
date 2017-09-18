@@ -20,9 +20,8 @@
                         "name": "ExampleHandlersMapName",
                         "path": [
                             {
-                                "handler": "Name of handler",
-                                "map": "or name of map",
-                                "config": "local handler config for apply in execution"
+                                "name": "Name of handler or map",
+                                "executeConfig": "local handler config for apply in execution"
                             }
                         ],
                         "executeConfig": "config for apply in all executions"
