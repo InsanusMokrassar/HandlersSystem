@@ -72,7 +72,9 @@ class HandlersMap(
             handlersParamsObject.put(
                     contextObjectField,
                     if (requestParams.has(contextObjectField)) {
-                        requestParams.get<IObject<Any>>(contextObjectField).addAll(executeConfig)
+                        val contextParams = requestParams.get<IObject<Any>>(contextObjectField)
+                        contextParams.addAll(executeConfig)
+                        contextParams
                     } else {
                         SimpleIObject(executeConfig)
                     }
