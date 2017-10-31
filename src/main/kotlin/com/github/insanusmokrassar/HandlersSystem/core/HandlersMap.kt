@@ -11,7 +11,10 @@ import com.github.insanusmokrassar.IObjectK.realisations.SimpleIObject
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
 import java.util.logging.Logger
+
+private val commonHandlersMapExecutor = Executors.newSingleThreadExecutor()
 
 /**
  * @param systemConfigObject Receive as first param object with settings of system: IOC object and other params which can be neede by handlers.
@@ -46,92 +49,86 @@ class HandlersMap(
                             config.get(IOCNameField)
                     ).resolve<ExecutorService>(
                             ExecutorService::class.simpleName!!,
-                            threadsGroupNameField
+                            config.get(threadsGroupNameField)
                     )
                 } catch (e: Exception) {
-                    Executors.newSingleThreadExecutor()
+                    commonHandlersMapExecutor
                 }
             } else {
-                Executors.newSingleThreadExecutor()
+                commonHandlersMapExecutor
             }
 
-    private val executeConfig: IObject<Any> = {
-        if (config.keys().contains(executeConfigField)) {
-            config.get(executeConfigField)
-        } else {
-            SimpleIObject()
+    private val executeConfig: IObject<Any> =
+            if (config.keys().contains(executeConfigField)) {
+                config.get(executeConfigField)
+            } else {
+                SimpleIObject()
+            }
+
+    override fun handle(requestParams: IObject<Any>) {
+        val map = config.get<List<IObject<Any>>>(pathField)
+        val handlersParamsObject = SimpleIObject()
+        handlersParamsObject.put(systemConfigObjectField, systemConfigObject)
+        handlersParamsObject.put(
+                contextObjectField,
+                if (requestParams.has(contextObjectField)) {
+                    val contextParams = requestParams.getContextIObject()
+                    contextParams.addAll(executeConfig)
+                    contextParams
+                } else {
+                    SimpleIObject(executeConfig)
+                }
+        )
+        handlersParamsObject.put(
+                requestObjectField,
+                if (requestParams.has(requestObjectField)) {
+                    requestParams.getRequestIObject()
+                } else {
+                    requestParams
+                }
+        )
+        handlersParamsObject.put(
+                resultObjectField,
+                if (requestParams.has(resultObjectField)) {
+                    requestParams.getResultIObject()
+                } else {
+                    SimpleIObject()
+                }
+        )
+        val ioc = getOrCreateIOC(config.get(IOCNameField))
+        map.forEach {
+            if (it.has(executeConfigField)) {
+                requestParams.getContextIObject().addAll(
+                        it.get<IObject<Any>>(
+                                executeConfigField
+                        )
+                )
+            }
+            try {
+                val handler = try {
+                    ioc.resolve<Handler>(Handler::class.simpleName!!, it.get<String>(nameField))
+                } catch (e: ResolveStrategyException) {
+                    ioc.resolve<Handler>(HandlersMap::class.simpleName!!, it.get<String>(nameField))
+                }
+                handler.handle(handlersParamsObject)
+            } catch (e: Exception) {
+                Logger.getGlobal().warning("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}")
+                e.printStackTrace()
+                throw IllegalStateException("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}", e)
+            }
         }
-    }()
-
-    override fun handle(requestParams: IObject<Any>, requestResult: (IObject<Any>) -> Unit) {
-        executor.submit({
-            val map = config.get<List<IObject<Any>>>(pathField)
-            val handlersParamsObject = SimpleIObject()
-            val result = SimpleIObject()
-            handlersParamsObject.put(systemConfigObjectField, systemConfigObject)
-            handlersParamsObject.put(
-                    contextObjectField,
-                    if (requestParams.has(contextObjectField)) {
-                        val contextParams = requestParams.getContextIObject()
-                        contextParams.addAll(executeConfig)
-                        contextParams
-                    } else {
-                        SimpleIObject(executeConfig)
-                    }
-            )
-            handlersParamsObject.put(
-                    requestObjectField,
-                    if (requestParams.has(requestObjectField)) {
-                        requestParams.getRequestIObject()
-                    } else {
-                        requestParams
-                    }
-            )
-            val ioc = getOrCreateIOC(config.get(IOCNameField))
-            val syncObject = Object()
-            map.forEach {
-                var next = false
-                if (it.has(executeConfigField)) {
-                    requestParams.getContextIObject().addAll(
-                            it.get<IObject<Any>>(
-                                    executeConfigField
-                            )
-                    )
-                }
-                try {
-                    val handler = try {
-                        ioc.resolve<Handler>(Handler::class.simpleName!!, it.get<String>(nameField))
-                    } catch (e: ResolveStrategyException) {
-                        ioc.resolve<Handler>(HandlersMap::class.simpleName!!, it.get<String>(nameField))
-                    }
-                    handler.handle(
-                            handlersParamsObject,
-                            {
-                                synchronized(syncObject, {
-                                    result.addAll(it)
-                                    next = true
-                                    syncObject.notify()
-                                })
-                            }
-                    )
-                    synchronized(syncObject, {
-                        while (!next) {
-                            syncObject.wait()
-                        }
-                    })
-                } catch (e: Exception) {
-                    Logger.getGlobal().warning("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}")
-                    e.printStackTrace()
-                    requestResult(result)
-                    throw IllegalStateException("Can't execute map ${config.get<String>(nameField)}, handler ${map.indexOf(it)}. ${e.message}", e)
-                }
-            }
-            requestResult(result)
-        })
     }
+
+    fun handleAsync(
+            requestParams: IObject<Any>,
+            executor: ExecutorService = this.executor
+    ) : Future<IObject<Any>> = executor.submit (Callable<IObject<Any>>{
+        handle(requestParams)
+        requestParams.getResultIObject()
+    })
 }
 
-fun IInputObject<String, Any>.getSystemIObject(): IObject<Any> {
+fun IInputObject<String, Any>.getSystemIObject(): IInputObject<String, Any> {
     return get(systemConfigObjectField)
 }
 
@@ -139,6 +136,10 @@ fun IInputObject<String, Any>.getContextIObject(): IObject<Any> {
     return get(contextObjectField)
 }
 
-fun IInputObject<String, Any>.getRequestIObject(): IObject<Any> {
+fun IInputObject<String, Any>.getRequestIObject(): IInputObject<String, Any> {
     return get(requestObjectField)
+}
+
+fun IInputObject<String, Any>.getResultIObject(): IObject<Any> {
+    return get(resultObjectField)
 }
