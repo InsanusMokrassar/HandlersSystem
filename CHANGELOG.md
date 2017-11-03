@@ -6,5 +6,5 @@ Now [Handlers](src/main/kotlin/com/github/insanusmokrassar/HandlersSystem/core/H
 callback and must add results of calculation in result object using
 [getResultIObject](src/main/kotlin/com/github/insanusmokrassar/HandlersSystem/core/HandlersMap.kt#143) fun. Besides, in
 [HandlersMap](src/main/kotlin/com/github/insanusmokrassar/HandlersSystem/core/HandlersMap.kt) was added method
-[handleAsync](src/main/kotlin/com/github/insanusmokrassar/HandlersSystem/core/HandlersMaps.kt#122) to handle message
+[handleAsync](src/main/kotlin/com/github/insanusmokrassar/HandlersSystem/core/HandlersMap.kt#122) to handle message
 async with current thread.  
