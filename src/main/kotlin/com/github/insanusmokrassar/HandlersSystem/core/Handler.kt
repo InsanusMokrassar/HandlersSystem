@@ -18,4 +18,4 @@ interface Handler {
  *  "config" - optional object, will translate into handler constructor
  * </p>
  */
-fun loadHandler(config: IObject<Any>): Handler = extract(config.get(packageKey), *getConfig(config))
+fun loadHandler(config: IObject<Any>): Handler = extract(config[packageKey], *getConfig(config))

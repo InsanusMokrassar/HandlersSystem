@@ -5,9 +5,10 @@ import com.github.insanusmokrassar.IOC.core.ResolveStrategyException
 import com.github.insanusmokrassar.IOC.core.getOrCreateIOC
 import com.github.insanusmokrassar.IObjectK.interfaces.IInputObject
 import com.github.insanusmokrassar.IObjectK.interfaces.IObject
-import com.github.insanusmokrassar.IObjectK.interfaces.addAll
 import com.github.insanusmokrassar.IObjectK.interfaces.has
 import com.github.insanusmokrassar.IObjectK.realisations.SimpleIObject
+import com.github.insanusmokrassar.IObjectK.utils.plus
+import com.github.insanusmokrassar.IObjectK.utils.plusAssign
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -46,10 +47,10 @@ class HandlersMap(
             if (config.has(threadsGroupNameField)) {
                 try {
                     getOrCreateIOC(
-                            config.get(IOCNameField)
+                            config[IOCNameField]
                     ).resolve<ExecutorService>(
                             ExecutorService::class.simpleName!!,
-                            config.get(threadsGroupNameField)
+                            config[threadsGroupNameField]
                     )
                 } catch (e: Exception) {
                     commonHandlersMapExecutor
@@ -60,7 +61,7 @@ class HandlersMap(
 
     private val executeConfig: IObject<Any> =
             if (config.keys().contains(executeConfigField)) {
-                config.get(executeConfigField)
+                config[executeConfigField]
             } else {
                 SimpleIObject()
             }
@@ -68,41 +69,27 @@ class HandlersMap(
     override fun handle(requestParams: IObject<Any>) {
         val map = config.get<List<IObject<Any>>>(pathField)
         val handlersParamsObject = SimpleIObject()
-        handlersParamsObject.put(systemConfigObjectField, systemConfigObject)
-        handlersParamsObject.put(
-                contextObjectField,
-                if (requestParams.has(contextObjectField)) {
-                    val contextParams = requestParams.getContextIObject()
-                    contextParams.addAll(executeConfig)
-                    contextParams
-                } else {
-                    SimpleIObject(executeConfig)
-                }
-        )
-        handlersParamsObject.put(
-                requestObjectField,
-                if (requestParams.has(requestObjectField)) {
-                    requestParams.getRequestIObject()
-                } else {
-                    requestParams
-                }
-        )
-        handlersParamsObject.put(
-                resultObjectField,
-                if (requestParams.has(resultObjectField)) {
-                    requestParams.getResultIObject()
-                } else {
-                    SimpleIObject()
-                }
-        )
-        val ioc = getOrCreateIOC(config.get(IOCNameField))
+        handlersParamsObject[systemConfigObjectField] = systemConfigObject
+        handlersParamsObject[contextObjectField] = if (requestParams.has(contextObjectField)) {
+            requestParams.getContextIObject() + executeConfig
+        } else {
+            SimpleIObject(executeConfig)
+        }
+        handlersParamsObject[requestObjectField] = if (requestParams.has(requestObjectField)) {
+            requestParams.getRequestIObject()
+        } else {
+            requestParams
+        }
+        handlersParamsObject[resultObjectField] = if (requestParams.has(resultObjectField)) {
+            requestParams.getResultIObject()
+        } else {
+            SimpleIObject()
+        }
+        val ioc = getOrCreateIOC(config[IOCNameField])
         map.forEach {
             if (it.has(executeConfigField)) {
-                requestParams.getContextIObject().addAll(
-                        it.get<IObject<Any>>(
-                                executeConfigField
-                        )
-                )
+                requestParams.getContextIObject() += it.get<IObject<Any>>(executeConfigField)
+
             }
             try {
                 val handler = try {

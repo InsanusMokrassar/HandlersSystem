@@ -1,20 +1,18 @@
 package com.github.insanusmokrassar.HandlersSystem
 
-val nameField = "name"
+const val nameField = "name"
 
-val systemConfigObjectField = "systemConfig"
-val systemConfigStrategyField = "systemConfigStrategy"
-val contextObjectField = "context"
-val requestObjectField = "requestParams"
+const val systemConfigObjectField = "systemConfig"
+const val systemConfigStrategyField = "systemConfigStrategy"
+const val contextObjectField = "context"
+const val requestObjectField = "requestParams"
 
-val resultObjectField = "resultObject"
+const val resultObjectField = "resultObject"
 
-val threadsGroupNameField = "threadsGroupName"
+const val threadsGroupNameField = "threadsGroupName"
 
 //HandlersMap
-val IOCNameField = "IOCName"
-val pathField = "path"
-val handlerField = "handler"
-val mapField = "map"
-val mapsField = "maps"
-val executeConfigField = "executeConfig"
+const val IOCNameField = "IOCName"
+const val pathField = "path"
+const val mapsField = "maps"
+const val executeConfigField = "executeConfig"

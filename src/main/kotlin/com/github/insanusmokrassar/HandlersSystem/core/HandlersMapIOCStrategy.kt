@@ -27,13 +27,13 @@ class HandlersMapIOCStrategy(config: IObject<Any>): IOCStrategy {
     init {
         val handlersMapsConfigs = config.get<List<IObject<Any>>>(mapsField)
         val systemConfig = if (config.keys().contains(systemConfigObjectField)) {
-            config.get(systemConfigObjectField)
+            config[systemConfigObjectField]
         } else {
             if (config.keys().contains(systemConfigStrategyField)) {
                 getOrCreateIOC(
-                        config.get(IOCNameField)
+                        config[IOCNameField]
                 ).resolve<IObject<Any>>(
-                        config.get(systemConfigStrategyField),
+                        config[systemConfigStrategyField],
                         systemConfigObjectField
                 )
             } else {
@@ -43,24 +43,12 @@ class HandlersMapIOCStrategy(config: IObject<Any>): IOCStrategy {
         val handlersMapsList = HashMap<String?, HandlersMap>()
         handlersMapsConfigs.forEach {
             if (!it.keys().contains(IOCNameField)) {
-                it.put(IOCNameField, config.get(IOCNameField))
+                it[IOCNameField] = config[IOCNameField]
             }
             try {
-                handlersMapsList.put(
-                    it.get(nameField),
-                    HandlersMap(
-                            it,
-                            systemConfig
-                    )
-                )
+                handlersMapsList[it[nameField]] = HandlersMap(it, systemConfig)
             } catch (e: ReadException) {
-                handlersMapsList.put(
-                        null,
-                        HandlersMap(
-                                it,
-                                systemConfig
-                        )
-                )
+                handlersMapsList[null] = HandlersMap(it, systemConfig)
             }
         }
         maps = handlersMapsList

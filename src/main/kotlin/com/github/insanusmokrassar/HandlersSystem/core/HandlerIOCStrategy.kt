@@ -12,7 +12,7 @@ class HandlerIOCStrategy(vararg handlersConfigs: Any): IOCStrategy {
         handlersConfigs.forEach {
             (it as? IObject<Any>)?.let {
                 futureHandlers.put(
-                        it.get(nameField),
+                        it[nameField],
                         loadHandler(it)
                 )
             }
