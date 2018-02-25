@@ -16,12 +16,12 @@ Available versions:
 <dependency>
     <groupId>com.github.insanusmokrassar</groupId>
     <artifactId>HandlersSystem</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
 </dependency>
 ```
 
 ## Gradle
 
 ```gradle
-compile 'com.github.insanusmokrassar:HandlersSystem:1.1'
+compile 'com.github.insanusmokrassar:HandlersSystem:1.2'
 ```
